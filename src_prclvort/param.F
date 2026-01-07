@@ -6696,6 +6696,8 @@
       prdbz = 0
       prb = 0
       prvpg = 0
+      prxv = 0 !add prxv
+      pryv = 0 !add pryv
       przv = 0
       prrho = 0
       prqsl = 0
@@ -6792,7 +6794,9 @@
         endif
         if( prcl_vort.eq.1 )then
         if( .not. terrain_flag )then
-          npvals = npvals+1
+          npvals = npvals+3
+          prxv = npvals-2 !add prxv
+          pryv = npvals-1 !add pryv
           przv = npvals
         endif
         endif
@@ -6853,6 +6857,8 @@
       if(dowr) write(outfile,*) '    prdbz    = ',prdbz
       if(dowr) write(outfile,*) '    prb      = ',prb
       if(dowr) write(outfile,*) '    prvpg    = ',prvpg
+      if(dowr) write(outfile,*) '    prxv     = ',prxv !add prxv
+      if(dowr) write(outfile,*) '    pryv     = ',pryv !add pryv
       if(dowr) write(outfile,*) '    przv     = ',przv
       if(dowr) write(outfile,*) '    prrho    = ',prrho
       if(dowr) write(outfile,*) '    prqsl    = ',prqsl

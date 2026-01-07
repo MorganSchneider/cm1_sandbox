@@ -96,7 +96,8 @@
       real, dimension(:,:), allocatable :: rho0s,pi0s,prs0s,rth0s
       real, dimension(:,:,:), allocatable :: pi0,rho0,prs0,thv0,th0,rth0,qv0
       real, dimension(:,:,:), allocatable :: qc0,qi0,rr0,rf0,rrf0,u0,v0,thrd
-      real, dimension(:,:,:), allocatable :: dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,dum9
+      real, dimension(:,:,:), allocatable :: dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,dum9,  &
+                                             dum10,dum11 !add dum10,dum11
       real, dimension(:,:), allocatable :: zs,gz,rgz,gzu,rgzu,gzv,rgzv,dzdx,dzdy
       real, dimension(:,:,:), allocatable :: gx,gxu,gy,gyv
       real, dimension(:,:,:), allocatable :: rain,raincv,hail,sws,svs,sps,srs,sgs,sus,shs
@@ -1455,6 +1456,10 @@
       dum8 = 0.0
       allocate( dum9(ib:ie,jb:je,kb:ke) )
       dum9 = 0.0
+      allocate( dum10(ib:ie,jb:je,kb:ke) ) !add dum10
+      dum10 = 0.0
+      allocate( dum11(ib:ie,jb:je,kb:ke) ) !add dum11
+      dum11 = 0.0
 
       allocate( out2d(ib2d:ie2d,jb2d:je2d,nout2d) )
       out2d = 0.0
@@ -4026,7 +4031,7 @@
                                zh,mh,rmh,zf,mf,zntmp,ust,c1,c2,        &
                                zs,sigma,sigmaf,rds,gz,                 &
                                pi0,th0,thv0,qv0,qc0,qi0,rth0,          &
-                               dum1,dum2,dum3,dum4,dum5,dum6,prs,rho,  &
+                               dum1,dum2,dum3,dum4,dum10,dum11,dum5,dum6,prs,rho,  &
                                dum7,dum8,wten,wten1,                   &
                                u3d,v3d,w3d,pp3d,thten,thten1,th3d,q3d, &
                                kmh,kmv,khh,khv,tke3d,pt3d,pdata,       &

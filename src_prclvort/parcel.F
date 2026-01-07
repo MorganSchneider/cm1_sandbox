@@ -657,7 +657,7 @@
                                zh,mh,rmh,zf,mf,znt,ust,c1,c2,          &
                                zs,sigma,sigmaf,rds,gz,                 &
                                pi0,th0,thv0,qv0,qc0,qi0,rth0,          &
-                               dum1,dum2,dum3,dum4,zv  ,qt  ,prs,rho,  &
+                               dum1,dum2,dum3,dum4,xv,yv,zv,qt,prs,rho,  & !add xv,yv
                                dum7,dum8,buoy,vpg  ,                   &
                                u3d,v3d,w3d,pp3d,th   ,t     ,th3d,q3d, &
                                kmh,kmv,khh,khv,tke3d,pt3d,pdata,       &
@@ -697,7 +697,7 @@
       real, intent(in), dimension(kb:ke) :: rds
       real, intent(in), dimension(itb:ite,jtb:jte) :: gz
       real, intent(in), dimension(ib:ie,jb:je,kb:ke) :: pi0,th0,thv0,qv0,qc0,qi0,rth0
-      real, intent(inout), dimension(ib:ie,jb:je,kb:ke) :: dum1,dum2,dum3,dum4,zv,qt,prs,rho
+      real, intent(inout), dimension(ib:ie,jb:je,kb:ke) :: dum1,dum2,dum3,dum4,xv,yv,zv,qt,prs,rho !add xv,yv
       real, intent(inout), dimension(ib:ie,jb:je,kb:ke) :: dum7,dum8
       real, intent(inout), dimension(ib:ie+1,jb:je,kb:ke) :: u3d
       real, intent(inout), dimension(ib:ie,jb:je+1,kb:ke) :: v3d
@@ -1057,6 +1057,28 @@
 !  cm1r18:  below lowest model level:
 !           Use extrapolated velocities for bbc=1,2
 !           Use log-layer equations for bbc=3 (see below)
+
+    IF( prxv.ge.1)THEN
+      do i=0,ni+1
+      do j=1,nj+1
+      do k=1,nk+1
+        xv(i,j,k) = (w3d(i,j,k)-w3d(i,j-1,k))*rdy*vf(j)   &
+                -(v3d(i,j,k)-v3d(i,j,k-1))*rdz*0.5*(mf(i,j-1,k)+mf(i,j,k))
+      enddo
+      enddo
+      enddo
+    ENDIF
+
+    IF( pryv.ge.1)THEN
+      do i=1,ni+1
+      do j=0,nj+1
+      do k=1,nk+1
+        yv(i,j,k) = (u3d(i,j,k)-u3d(i,j,k-1))*rdz*0.5*(mf(i-1,j,k)+mf(i,j,k))  &
+                    -(w3d(i,j,k)-w3d(i-1,j,k))*rdx*uf(i)
+      enddo
+      enddo
+      enddo
+    ENDIF
 
     IF( przv.ge.1)THEN
 
@@ -1452,6 +1474,107 @@
           enddo
         endif
 
+!----------------------------------------------------------------------
+!  Data on xvort points
+
+      IF( prxv.ge.1 )THEN
+
+        i=iflag
+        j=jflag
+        k=kflag
+
+        if( pdata(np,prx).lt.xh(i) )then
+          i=i-1
+        endif
+
+        rx = rxs
+        ry = ryv
+        rz = rzw
+
+        w1=(1.0-rx)*(1.0-ry)*(1.0-rz)
+        w2=rx*(1.0-ry)*(1.0-rz)
+        w3=(1.0-rx)*ry*(1.0-rz)
+        w4=(1.0-rx)*(1.0-ry)*rz
+        w5=rx*(1.0-ry)*rz
+        w6=(1.0-rx)*ry*rz
+        w7=rx*ry*(1.0-rz)
+        w8=rx*ry*rz
+
+        IF(debug)THEN
+        wsum = w1+w2+w3+w4+w5+w6+w7+w8
+        if( rx.lt.-0.0001 .or. rx.gt.1.0001 .or.  &
+            ry.lt.-0.0001 .or. ry.gt.1.0001 .or.  &
+            rz.lt.-0.0001 .or. rz.gt.1.0001 .or.  &
+            wsum.le.0.99999 .or.                  &
+            wsum.ge.1.00001 .or.                  &
+            i.lt.1 .or. i.gt.(ni+1)   .or.        &
+            j.lt.1 .or. j.gt.(nj+1)   .or.        &
+            k.lt.0 .or. k.gt.nk                   )then
+          print *
+          print *,'  15559: '
+          print *,'  np          = ',np
+          print *,'  myid,i,j,k  = ',myid,i,j,k
+          print *,'  rx,ry,rz    = ',rx,ry,rz
+          print *,'  wsum        = ',wsum
+          print *
+          call stopcm1
+        endif
+        ENDIF
+
+        call tri_interp(ni,nj,nk,i,j,k,w1,w2,w3,w4,w5,w6,w7,w8,xv,pdata(np,prxv))
+
+      ENDIF
+
+!----------------------------------------------------------------------
+!  Data on yvort points
+
+      IF( pryv.ge.1 )THEN
+
+        i=iflag
+        j=jflag
+        k=kflag
+
+        if( pdata(np,pry).lt.yh(j) )then
+          j=j-1
+        endif
+
+        rx = rxu
+        ry = rys
+        rz = rzw
+
+        w1=(1.0-rx)*(1.0-ry)*(1.0-rz)
+        w2=rx*(1.0-ry)*(1.0-rz)
+        w3=(1.0-rx)*ry*(1.0-rz)
+        w4=(1.0-rx)*(1.0-ry)*rz
+        w5=rx*(1.0-ry)*rz
+        w6=(1.0-rx)*ry*rz
+        w7=rx*ry*(1.0-rz)
+        w8=rx*ry*rz
+
+        IF(debug)THEN
+        wsum = w1+w2+w3+w4+w5+w6+w7+w8
+        if( rx.lt.-0.0001 .or. rx.gt.1.0001 .or.  &
+            ry.lt.-0.0001 .or. ry.gt.1.0001 .or.  &
+            rz.lt.-0.0001 .or. rz.gt.1.0001 .or.  &
+            wsum.le.0.99999 .or.                  &
+            wsum.ge.1.00001 .or.                  &
+            i.lt.1 .or. i.gt.(ni+1)   .or.        &
+            j.lt.1 .or. j.gt.(nj+1)   .or.        &
+            k.lt.0 .or. k.gt.nk                   )then
+          print *
+          print *,'  15559: '
+          print *,'  np          = ',np
+          print *,'  myid,i,j,k  = ',myid,i,j,k
+          print *,'  rx,ry,rz    = ',rx,ry,rz
+          print *,'  wsum        = ',wsum
+          print *
+          call stopcm1
+        endif
+        ENDIF
+
+        call tri_interp(ni,nj,nk,i,j,k,w1,w2,w3,w4,w5,w6,w7,w8,yv,pdata(np,pryv))
+
+      ENDIF
 !----------------------------------------------------------------------
 !  Data on zvort points
 
@@ -2073,6 +2196,20 @@
         name_prcl(prcl_out) = 'vpg'
         desc_prcl(prcl_out) = 'vertical perturbation pressure gradient'
         unit_prcl(prcl_out) = 'm/s/s'
+      endif
+
+      if( prxv.ge.1 )then
+        prcl_out = prcl_out+1
+        name_prcl(prcl_out) = 'xvort'
+        desc_prcl(prcl_out) = 'zonal vorticity'
+        unit_prcl(prcl_out) = '1/s'
+      endif
+
+      if( pryv.ge.1 )then
+        prcl_out = prcl_out+1
+        name_prcl(prcl_out) = 'yvort'
+        desc_prcl(prcl_out) = 'meridional vorticity'
+        unit_prcl(prcl_out) = '1/s'
       endif
 
       if( przv.ge.1 )then
