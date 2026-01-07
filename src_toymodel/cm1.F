@@ -2751,6 +2751,7 @@
           if( statfrq.gt.1.0e-6 ) stattim = mtime + statfrq
           if(  tapfrq.gt.1.0e-6 ) taptim  = mtime + tapfrq
           if(  rstfrq.gt.1.0e-6 ) rsttim  = mtime + rstfrq
+          if( prclfrq.gt.1.0e-6 ) prcltim = mtime + prclfrq
         ENDIF
         if(dowr) write(outfile,*)
         if(dowr) write(outfile,*) '  Using the following: '
@@ -2758,6 +2759,7 @@
         if(dowr) write(outfile,*) '   stattim = ',stattim
         if(dowr) write(outfile,*) '   taptim  = ',taptim
         if(dowr) write(outfile,*) '   rsttim  = ',rsttim
+        if(dowr) write(outfile,*) '   prcltim = ',prcltim
         if(dowr) write(outfile,*) '   radtim  = ',radtim
         if(dowr) write(outfile,*)
 
